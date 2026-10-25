@@ -49,7 +49,19 @@ export function metaStore() {
 }
 
 export async function saveRecord(record) {
-  await crosswordsStore().setJSON('cw:' + record.id, record);
+  const store = crosswordsStore();
+  const key = 'cw:' + record.id;
+
+  await store.setJSON(key, record);
+
+  // Проверяем, что реально записалось
+  const check = await store.get(key, { type: 'json' });
+  if (!check || check.id !== record.id) {
+    console.error('SAVE FAILED', key, 'check:', check);
+    throw new Error('Не удалось сохранить кроссворд в хранилище');
+  }
+
+  console.log('SAVE OK', key);
 }
 
 export async function loadRecord(id) {
