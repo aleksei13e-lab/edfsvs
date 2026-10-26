@@ -86,9 +86,20 @@ export function randomToken() {
 }
 
 // Параметр маршрута: редиректы netlify.toml передают его query-параметром,
-// паттерны функций v2 — через context.params. Поддерживаем оба варианта.
+// паттерны функций v2 — через context.params. На Netlify при rewrite (status 200)
+// функция может видеть исходный адрес /api/crossword/<id> без ?id=, поэтому
+// последним запасным вариантом читаем значение из самого пути.
 export function routeParam(request, context, name) {
-  const fromQuery = new URL(request.url).searchParams.get(name);
+  const url = new URL(request.url);
+  const fromQuery = url.searchParams.get(name);
   if (fromQuery) return fromQuery;
-  return context?.params?.[name];
+  const fromContext = context?.params?.[name];
+  if (fromContext) return fromContext;
+  // /api/crossword/<id>[/manage], /api/bank/<theme>
+  const parts = url.pathname.split('/').filter(Boolean);
+  const i = parts.findIndex(p => p === 'crossword' || p === 'bank');
+  if (i >= 0 && parts[i + 1]) {
+    try { return decodeURIComponent(parts[i + 1]); } catch { return parts[i + 1]; }
+  }
+  return undefined;
 }
