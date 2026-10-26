@@ -191,7 +191,10 @@ export class CrosswordBoard {
   // Обработка клавиатуры; возвращает true, если событие поглощено
   handleKey(e) {
     if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      return this.inputLetter(e.key);
+      const handled = this.inputLetter(e.key);
+      // Буква уже введена здесь — запрещаем браузеру дублировать её в скрытый input
+      if (handled) e.preventDefault();
+      return handled;
     }
     switch (e.key) {
       case 'Backspace': e.preventDefault(); this.erase(false); return true;
