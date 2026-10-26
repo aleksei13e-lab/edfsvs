@@ -12,7 +12,7 @@
     "sweep": "netlify functions:invoke sweep"
   },
   "dependencies": {
-    "@netlify/blobs": "^6.4.0"
+    "@netlify/blobs": "^8.2.0"
   },
   "devDependencies": {
     "netlify-cli": "^17.38.0"
